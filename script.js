@@ -6,6 +6,7 @@ const searchTitleInput = document.querySelector('#search-title');
 const searchButton = document.querySelector('#search-button');
 const filterCategorySelect = document.getElementById('filter-category');
 const ratingFilter = document.querySelector('#filter-rating');
+const sortfilter= document.querySelector('#sort');
 const products= fetchProducts()
 const category =[]
 
@@ -17,14 +18,14 @@ async function fetchProducts() {
   
     ratingFilter.addEventListener('change', function() {
         filteredProducts = products.filter(product => {
-          return (this.value === '' || product.rating.rate >= parseInt(this.value)) && (filterCategoryInput.value === '' || product.category === filterCategoryInput.value) ;
+          return (this.value === '' || product.rating.rate >= parseInt(this.value)) && (filterCategoryInput.value === '' || product.category === filterCategoryInput.value) && (searchTitleInput.value === '' || product.title.toLowerCase().includes(searchTitleInput.value.toLowerCase())) ;
         });
         renderProducts(filteredProducts);
     });
 
     filterCategorySelect.addEventListener('change', function() {
         filteredProducts = products.filter(product => {
-          return (this.value === '' || product.category === this.value) && (filterRatingInput.value === '' || product.rating.rate >= parseInt(filterRatingInput.value));
+          return (this.value === '' || product.category === this.value) && (filterRatingInput.value === '' || product.rating.rate >= parseInt(filterRatingInput.value)) && (searchTitleInput.value === '' || product.title.toLowerCase().includes(searchTitleInput.value.toLowerCase()));
         });
         renderProducts(filteredProducts);
     });
@@ -36,6 +37,26 @@ async function fetchProducts() {
         });
         renderProducts(filteredProducts);
     });
+
+    sortfilter.addEventListener('change', function() {
+        console.log(sortfilter.value)
+        filteredProducts = products.filter(product => {
+          return (searchTitleInput.value === '' || product.title.toLowerCase().includes(searchTitleInput.value.toLowerCase())) && (filterRatingInput.value === '' || product.rating.rate >= parseInt(filterRatingInput.value)) && (filterCategoryInput.value === '' || product.category === filterCategoryInput.value);
+        });
+        if (this.value === 'high'){
+            filteredProducts = filteredProducts.sort(function(a, b) {
+                return b.rating.rate - a.rating.rate;
+            });
+        }
+        if (this.value === 'low'){
+            filteredProducts = filteredProducts.sort(function(a, b) {
+                return a.rating.rate - b.rating.rate;
+            });
+        }
+        renderProducts(filteredProducts);
+
+    });
+
 
     function renderProducts(products) {
         productList.innerHTML = '';
@@ -58,7 +79,13 @@ async function fetchProducts() {
         const productRating = document.createElement('div');
         productRating.classList.add('product-rating');
         productRating.textContent = product.rating.rate;
-            productCard.appendChild(productRating);
+        productCard.appendChild(productRating);
+        
+        const productPrice = document.createElement('div');
+        productPrice.classList.add('product-rating');
+        productPrice.textContent = product.price+" $";
+        productCard.appendChild(productPrice);
+
     
         const productCategory = document.createElement('div');
         productCategory.classList.add('product-category');
